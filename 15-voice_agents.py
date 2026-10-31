@@ -36,6 +36,18 @@ API_KEY = get_api_key()
 if API_KEY:
     os.environ["OPENAI_API_KEY"] = API_KEY
 
+import threading
+
+@st.cache_resource
+def get_background_loop():
+    loop = asyncio.new_event_loop()
+    threading.Thread(target=loop.run_forever, daemon=True).start()
+    return loop
+
+def run_async(coro):
+    loop = get_background_loop()
+    return asyncio.run_coroutine_threadsafe(coro, loop).result()
+
 
 SAMPLE_RATE = 24_000
 
@@ -471,10 +483,9 @@ if audio_val:
         wav_bytes, error = None, None
         try:
             audio_obj = process_audio_bytes(audio_bytes)
-            # pipeline = get_pipeline(VOICES[voice_choice])
             pipeline = get_pipeline(VOICES[voice_choice], language_choice)
             with st.spinner("AI is computing response..."):
-                raw_pcm = asyncio.run(run_pipeline(pipeline, audio_obj))
+                raw_pcm = run_async(run_pipeline(pipeline, audio_obj))
             if raw_pcm:
                 wav_bytes = pcm_to_wav(raw_pcm)
             else:
