@@ -5,8 +5,10 @@ import io
 import wave
 import base64
 import hashlib
+import os
 from html import escape
 from dotenv import load_dotenv
+
 
 # Backend imports
 from agents import Agent
