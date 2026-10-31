@@ -19,6 +19,22 @@ from agents.voice import (
 )
 
 load_dotenv()
+
+def get_api_key():
+    key = os.getenv("OPENAI_API_KEY")
+    if key:
+        return key
+    try:
+        return st.secrets["OPENAI_API_KEY"]
+    except Exception:
+        return None
+
+API_KEY = get_api_key()
+
+if API_KEY:
+    os.environ["OPENAI_API_KEY"] = API_KEY
+
+
 SAMPLE_RATE = 24_000
 
 # Female / Male voice mapping (aur voices: nova, shimmer = female | echo, ash = male)
